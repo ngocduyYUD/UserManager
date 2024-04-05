@@ -11,9 +11,6 @@ import org.springframework.context.ApplicationContext;
 
 @SpringBootApplication
 public class FresherApplication {
-
-	@Autowired
-	static UserRepository userRepository;
 	public static void main(String[] args) {
 		SpringApplication.run(FresherApplication.class, args);
 	}

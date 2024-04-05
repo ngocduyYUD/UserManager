@@ -18,6 +18,7 @@ public class DataGenerator {
          user.setUsername(faker.name().username());
          user.setFull_name(faker.name().fullName());
          user.setAvatar(faker.avatar().image());
+         user.setAddress(faker.address().fullAddress());
          userRepository.save(user);
       }
       return "Successful";

@@ -2,9 +2,13 @@ package com.intern.fresher.service;
 
 import com.intern.fresher.DAL.UserRepository;
 import com.intern.fresher.entity.User;
+import com.intern.fresher.response.UserResponseMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -12,50 +16,158 @@ import java.util.UUID;
 public class UserService {
     @Autowired
     UserRepository userRepository;
-    public User addUser(User user)
+    public UserResponseMessage addUser(User user)
     {
-        //User findUser = userRepository.findById(user.getUser_id());
-        //if(findUser == null)
-        //{
-            //validate name, address, age (1-100)
-            userRepository.saveAndFlush(user);
-            //userRepository.insertUser(user.getUser_id().toString(), user.getUsername(), user.getFull_name(), user.getAvatar(), user.getAddress());
-            return user;
-        //}
-        //return null;
-    }
-    public User deleteUserById(UUID id)
-    {
-        User findUser = userRepository.findById(id);
-        if(findUser != null)
+        UserResponseMessage userResponseMessage = new UserResponseMessage();
+        if(validateUser(user))
         {
-            userRepository.deleteById(id);
-            return findUser;
+            userResponseMessage.setMessage("wrong type data");
+            userResponseMessage.setStatus(0);
+            userResponseMessage.setCode(900);
+            userResponseMessage.setData(null);
+            return userResponseMessage;
         }
-        return null;
-    }
-    public User updateUserRequest(User user)
-    {
-        User findUser = userRepository.findById(user.getUser_id());
-        if(findUser != null)
+        if(!userRepository.existsById(user.getUserid()))
         {
-            userRepository.save(user);
-            return user;
+            List<User> users = new ArrayList<>();
+            users.add(user);
+            userResponseMessage.setMessage("add successfull");
+            userResponseMessage.setStatus(1);
+            userResponseMessage.setCode(HttpStatus.OK.value());
+            userResponseMessage.setData(users);
+            return userResponseMessage;
         }
-        return null;
+        userResponseMessage.setMessage("User already exist");
+        userResponseMessage.setStatus(0);
+        userResponseMessage.setCode(902);
+        userResponseMessage.setData(null);
+        return userResponseMessage;
     }
-
-    public List<User> findUserByName(String name)
+    public UserResponseMessage deleteUserById(UUID id)
     {
-        List<User> findUser = userRepository.findByName(name);
-        return findUser;
+        UserResponseMessage userResponseMessage = new UserResponseMessage();
+        if(userRepository.existsById(id))
+        {
+            User returnUser = userRepository.findByUserid(id);
+            userRepository.delete(returnUser);
+            List<User> users = new ArrayList<>();
+            users.add(returnUser);
+            userResponseMessage.setMessage("delete successfull");
+            userResponseMessage.setStatus(1);
+            userResponseMessage.setCode(HttpStatus.OK.value());
+            userResponseMessage.setData(users);
+            return userResponseMessage;
+        }
+        userResponseMessage.setMessage("User is not exist");
+        userResponseMessage.setStatus(0);
+        userResponseMessage.setCode(HttpStatus.NOT_FOUND.value());
+        userResponseMessage.setData(null);
+        return userResponseMessage;
     }
-
-    public List<User> findByAddress(String address)
+    public UserResponseMessage updateUserRequest(User user)
     {
-        List<User> findUser = userRepository.findByAddress(address);
-        return findUser;
+        UserResponseMessage userResponseMessage = new UserResponseMessage();
+        if(validateUser(user))
+        {
+            userResponseMessage.setMessage("wrong type data");
+            userResponseMessage.setStatus(0);
+            userResponseMessage.setCode(900);
+            userResponseMessage.setData(null);
+            return userResponseMessage;
+        }
+        if(userRepository.existsById(user.getUserid()))
+        {
+            List<User> users = new ArrayList<>();
+            users.add(user);
+            userResponseMessage.setMessage("add successfull");
+            userResponseMessage.setStatus(1);
+            userResponseMessage.setCode(HttpStatus.OK.value());
+            userResponseMessage.setData(users);
+            return userResponseMessage;
+        }
+        userResponseMessage.setMessage("User is not exist");
+        userResponseMessage.setStatus(0);
+        userResponseMessage.setCode(HttpStatus.NOT_FOUND.value());
+        userResponseMessage.setData(null);
+        return userResponseMessage;
     }
 
+    public UserResponseMessage findUserByName(String name)
+    {
+        UserResponseMessage userResponseMessage = new UserResponseMessage();
+        List<User> findUser = userRepository.findByUsernameContaining(name);
+        userResponseMessage.setMessage("find successfull");
+        userResponseMessage.setStatus(1);
+        userResponseMessage.setCode(HttpStatus.OK.value());
+        userResponseMessage.setData(findUser);
+        return userResponseMessage;
+    }
 
+    public UserResponseMessage findUserUsingId(UUID id)
+    {
+        UserResponseMessage userResponseMessage = new UserResponseMessage();
+        User user = userRepository.findByUserid(id);
+        if(user != null)
+        {
+            List<User> users = new ArrayList<>();
+            users.add(user);
+            userResponseMessage.setMessage("find successfull");
+            userResponseMessage.setStatus(1);
+            userResponseMessage.setCode(HttpStatus.OK.value());
+            userResponseMessage.setData(users);
+            return userResponseMessage;
+        }
+        userResponseMessage.setMessage("User is not exist");
+        userResponseMessage.setStatus(0);
+        userResponseMessage.setCode(HttpStatus.NOT_FOUND.value());
+        userResponseMessage.setData(null);
+        return userResponseMessage;
+    }
+
+    public UserResponseMessage findUserByAddress(String address)
+    {
+        UserResponseMessage userResponseMessage = new UserResponseMessage();
+        List<User> findUser = userRepository.findByAddressContaining(address);
+        userResponseMessage.setMessage("find successfull");
+        userResponseMessage.setStatus(1);
+        userResponseMessage.setCode(HttpStatus.OK.value());
+        userResponseMessage.setData(findUser);
+        return userResponseMessage;
+    }
+
+    public UserResponseMessage sortUserByName()
+    {
+        List<User> users = userRepository.findAll();
+        UserResponseMessage userResponseMessage = new UserResponseMessage();
+        users.sort(new Comparator<User>() {
+            @Override
+            public int compare(User s1, User s2) {
+                String[] name1 = s1.getUsername().split("/.");
+                String[] name2 = s2.getUsername().split("/.");
+                return name1[name1.length - 1].compareTo(name2[name2.length - 1]);
+            }
+        });
+        userResponseMessage.setMessage("sort successfull");
+        userResponseMessage.setStatus(1);
+        userResponseMessage.setCode(HttpStatus.OK.value());
+        userResponseMessage.setData(users);
+        return userResponseMessage;
+    }
+
+    public boolean validateUser(User user)
+    {
+        if(user.getUsername().isEmpty())
+        {
+            return true;
+        }
+        if(user.getAddress().isEmpty())
+        {
+            return true;
+        }
+        if(user.getAge() < 1 || user.getAge() > 100)
+        {
+            return true;
+        }
+        return false;
+    }
 }

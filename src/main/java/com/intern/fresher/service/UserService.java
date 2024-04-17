@@ -29,9 +29,10 @@ public class UserService {
         }
         if(!userRepository.existsById(user.getUserid()))
         {
+            userRepository.save(user);
             List<User> users = new ArrayList<>();
-            users.add(user);
-            userResponseMessage.setMessage("add successfull");
+            users.add(userRepository.findLastRecord());
+            userResponseMessage.setMessage("add user information");
             userResponseMessage.setStatus(1);
             userResponseMessage.setCode(HttpStatus.OK.value());
             userResponseMessage.setData(users);
@@ -52,13 +53,13 @@ public class UserService {
             userRepository.delete(returnUser);
             List<User> users = new ArrayList<>();
             users.add(returnUser);
-            userResponseMessage.setMessage("delete successfull");
+            userResponseMessage.setMessage("delete user information");
             userResponseMessage.setStatus(1);
             userResponseMessage.setCode(HttpStatus.OK.value());
             userResponseMessage.setData(users);
             return userResponseMessage;
         }
-        userResponseMessage.setMessage("User is not exist");
+        userResponseMessage.setMessage("User not found");
         userResponseMessage.setStatus(0);
         userResponseMessage.setCode(HttpStatus.NOT_FOUND.value());
         userResponseMessage.setData(null);
@@ -77,15 +78,16 @@ public class UserService {
         }
         if(userRepository.existsById(user.getUserid()))
         {
+            userRepository.save(user);
             List<User> users = new ArrayList<>();
             users.add(user);
-            userResponseMessage.setMessage("add successfull");
+            userResponseMessage.setMessage("update user information");
             userResponseMessage.setStatus(1);
             userResponseMessage.setCode(HttpStatus.OK.value());
             userResponseMessage.setData(users);
             return userResponseMessage;
         }
-        userResponseMessage.setMessage("User is not exist");
+        userResponseMessage.setMessage("User not found");
         userResponseMessage.setStatus(0);
         userResponseMessage.setCode(HttpStatus.NOT_FOUND.value());
         userResponseMessage.setData(null);
@@ -96,7 +98,7 @@ public class UserService {
     {
         UserResponseMessage userResponseMessage = new UserResponseMessage();
         List<User> findUser = userRepository.findByUsernameContaining(name);
-        userResponseMessage.setMessage("find successfull");
+        userResponseMessage.setMessage("user information");
         userResponseMessage.setStatus(1);
         userResponseMessage.setCode(HttpStatus.OK.value());
         userResponseMessage.setData(findUser);
@@ -111,13 +113,13 @@ public class UserService {
         {
             List<User> users = new ArrayList<>();
             users.add(user);
-            userResponseMessage.setMessage("find successfull");
+            userResponseMessage.setMessage("user information");
             userResponseMessage.setStatus(1);
             userResponseMessage.setCode(HttpStatus.OK.value());
             userResponseMessage.setData(users);
             return userResponseMessage;
         }
-        userResponseMessage.setMessage("User is not exist");
+        userResponseMessage.setMessage("user not found");
         userResponseMessage.setStatus(0);
         userResponseMessage.setCode(HttpStatus.NOT_FOUND.value());
         userResponseMessage.setData(null);
@@ -128,7 +130,7 @@ public class UserService {
     {
         UserResponseMessage userResponseMessage = new UserResponseMessage();
         List<User> findUser = userRepository.findByAddressContaining(address);
-        userResponseMessage.setMessage("find successfull");
+        userResponseMessage.setMessage("user information");
         userResponseMessage.setStatus(1);
         userResponseMessage.setCode(HttpStatus.OK.value());
         userResponseMessage.setData(findUser);
@@ -147,7 +149,7 @@ public class UserService {
                 return name1[name1.length - 1].compareTo(name2[name2.length - 1]);
             }
         });
-        userResponseMessage.setMessage("sort successfull");
+        userResponseMessage.setMessage("sort users");
         userResponseMessage.setStatus(1);
         userResponseMessage.setCode(HttpStatus.OK.value());
         userResponseMessage.setData(users);

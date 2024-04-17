@@ -19,4 +19,7 @@ public interface UserRepository extends JpaRepository<User, UUID> {
     List<User> findByUsernameContaining(String name);
     UUID deleteByUserid(UUID id);
     List<User> findByAddressContaining(String address);
+
+    @Query(value = "SELECT * FROM \"user_data\" OFFSET ((SELECT COUNT(*) FROM \"user_data\" )-1)", nativeQuery = true)
+    User findLastRecord();
 }

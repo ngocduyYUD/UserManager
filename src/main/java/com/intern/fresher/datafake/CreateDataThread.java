@@ -21,7 +21,7 @@ public class CreateDataThread implements Runnable{
     public void run() {
         System.out.println("Running " + threadName);
         Random r = new Random();
-        for (int i = 0; i < 100000; i++) {
+        for (int i = 0; i < 250; i++) {
             Faker faker = new Faker();
             User user = new User();
             user.setUsername(faker.name().username());
